@@ -1,7 +1,5 @@
-### TS-Next-Mantineでアプリを作るときのスターターキット
+# snake-game
 
-#### 都度改善していく
-
-```bash
-yarn create next-app --example https://github.com/katayama8000/TS-Next-Mantine-BASIC
-```
+#### 参考記事
+- [useRef](https://qiita.com/cheez921/items/9a5659f4b94662b4fd1e)
+- [canvas](https://qiita.com/manten120/items/86c087b937708697acec)
