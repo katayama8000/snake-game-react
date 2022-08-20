@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import useInterval from "@hooks/useInterval";
-import { Image } from "@mantine/core";
 
 const canvasX = 1000;
 const canvasY = 1000;
-const initialSnake = [
+const initialSnake: number[][] = [
   [4, 10],
   [4, 10],
 ];
@@ -22,11 +21,14 @@ const Home = () => {
   const [score, setScore] = useState<number>(0);
   const [highScore, setHighScore] = useState<string | null>("");
   const [left, setLeft] = useState<number>(20);
+  const [speedUp, setSpeedUp] = useState<number>(20);
 
-  console.log(snake);
+  //console.log(snake);
 
+  //0.1秒おきにrunGame()が一回呼ばれる
   useInterval(() => runGame(), delay);
 
+  //localStorageからhighScoreを取得
   useEffect(() => {
     setHighScore(localStorage.getItem("snakeScore"));
   }, []);
@@ -37,37 +39,68 @@ const Home = () => {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
       if (ctx) {
-        ctx.setTransform(scale, 0, 0, scale, 0, 0);
+        //全体的なスケールを指定
+        ctx.setTransform(scale, 1, 0, scale, 0, 0);
+        //この領域内のすべてのピクセルが消去される
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        ctx.fillStyle = "#a3d001";
+        switch (speedUp) {
+          case 20:
+            ctx.fillStyle = "#7CFC00";
+            break;
+          case 40:
+            ctx.fillStyle = "#FFD700";
+            break;
+          case 60:
+            ctx.fillStyle = "#FF8C00";
+            break;
+          case 80:
+            ctx.fillStyle = "#FF0000";
+            break;
+          default:
+            ctx.fillStyle = "#7CFC00";
+            break;
+        }
+
+        //四角形をsnakeの長さ分描画
         snake.forEach(([x, y]) => ctx.fillRect(x, y, 1, 1));
+        //Reactのアイコンを描画
+        //drawImage(画像, 座標x, 座標y, 幅, 高さ)
         ctx.drawImage(reactIcon, rIcon[0], rIcon[1], 1, 1);
       }
     }
-  }, [snake, rIcon, isgameOver]);
+  }, [snake, rIcon, isgameOver, score, speedUp]);
 
-  const handleSetScore = () => {
-    if (score > Number(localStorage.getItem("snakeScore"))) {
+  //スコアを更新する
+  const handleSetScore = (): void => {
+    if (score > Number(highScore)) {
       localStorage.setItem("snakeScore", JSON.stringify(score));
     }
   };
 
-  const play = () => {
+  //ゲームを開始する
+  const play = (): void => {
     setSnake(initialSnake);
     setRIcon(initialReactIcon);
     setDirection([1, 0]);
     setDelay(timeDelay);
     setScore(0);
     setIsGameOver(false);
+    setSpeedUp(20);
   };
 
-  const checkCollision = (head: number[]) => {
-    for (let i = 0; i < head.length; i++) {
+  const checkCollision = (head: number[]): boolean => {
+    console.log(head);
+    //
+    for (let i = 0; i < 2; i++) {
       if (head[i] < 0 || head[i] * scale >= canvasX) return true;
+      console.log(1);
     }
+    //
     for (const s of snake) {
       if (head[0] === s[0] && head[1] === s[1]) return true;
+      console.log(2);
     }
+    //falseが返ってきたら、ゲームオーバー
     return false;
   };
 
@@ -77,19 +110,29 @@ const Home = () => {
     );
     if (newSnake[0][0] === rIcon[0] && newSnake[0][1] === rIcon[1]) {
       const newRIcon = coord;
+      const isFiveOrZero: boolean = (score + 1) % 5 === 0;
       setScore(score + 1);
+      if (isFiveOrZero && score !== 0) {
+        console.log("-------------------------------");
+        console.log(timeDelay, score, speedUp);
+        setDelay(timeDelay - speedUp);
+        setSpeedUp((prev) => prev + 20);
+      }
+
       setRIcon(newRIcon);
       return true;
     }
     return false;
   };
 
-  const runGame = () => {
+  const runGame = (): void => {
     const newSnake = [...snake];
     const newSnakeHead: number[] = [
       newSnake[0][0] + direction[0],
       newSnake[0][1] + direction[1],
     ];
+    console.log("蛇の頭", newSnakeHead);
+    //配列の先頭に追加
     newSnake.unshift(newSnakeHead);
     //Game over
     if (checkCollision(newSnakeHead)) {
@@ -104,7 +147,7 @@ const Home = () => {
     setSnake(newSnake);
   };
 
-  const changeDirection = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const changeDirection = (e: React.KeyboardEvent<HTMLDivElement>): void => {
     switch (e.key) {
       case "ArrowLeft":
         setDirection([-1, 0]);
@@ -125,7 +168,7 @@ const Home = () => {
     <div onKeyDown={(e) => changeDirection(e)}>
       <img
         src={
-          "https://play-lh.googleusercontent.com/AFY95yFw1P4ErzREpYWiSRyy6GyFA34pc70dP7MuHfkP12alfktC0Rp2ht-LbPAvO5sg"
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSISAMlSDXN3aCpjHjbdrUP4vebVgG-UhE-Aw&usqp=CAU"
         }
         width="20"
         height="30"
@@ -147,6 +190,7 @@ const Home = () => {
         <h2>Score: {score}</h2>
         {highScore && <h2>High Score: {highScore}</h2>}
         <h2>Left: {left}</h2>
+        <h2>Speed: {speedUp}</h2>
       </div>
     </div>
   );
