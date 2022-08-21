@@ -171,8 +171,8 @@ const Home = () => {
         setDirection([0, 1]);
         break;
       case "Enter":
-        alert("pause");
-        setDirection(snake[0]);
+        //alert("pause");
+        play();
         break;
       default:
         break;
