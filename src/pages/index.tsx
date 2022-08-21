@@ -3,6 +3,7 @@ import useInterval from "@hooks/useInterval";
 
 const canvasX = 1000;
 const canvasY = 1000;
+//配列が増える＝蛇の長さが増える
 const initialSnake: number[][] = [
   [4, 10],
   [4, 10],
@@ -35,12 +36,13 @@ const Home = () => {
 
   useEffect(() => {
     const reactIcon = document.getElementById("react") as HTMLCanvasElement;
+    console.log(canvasRef.current);
     if (canvasRef.current) {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
       if (ctx) {
         //全体的なスケールを指定
-        ctx.setTransform(scale, 1, 0, scale, 0, 0);
+        ctx.setTransform(scale, 0, 0, scale, 0, 0);
         //この領域内のすべてのピクセルが消去される
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         switch (speedUp) {
@@ -68,7 +70,7 @@ const Home = () => {
         ctx.drawImage(reactIcon, rIcon[0], rIcon[1], 1, 1);
       }
     }
-  }, [snake, rIcon, isgameOver, score, speedUp]);
+  }, [snake, rIcon, isgameOver, speedUp]);
 
   //スコアを更新する
   const handleSetScore = (): void => {
@@ -81,6 +83,7 @@ const Home = () => {
   const play = (): void => {
     setSnake(initialSnake);
     setRIcon(initialReactIcon);
+    //初めは右
     setDirection([1, 0]);
     setDelay(timeDelay);
     setScore(0);
@@ -105,13 +108,15 @@ const Home = () => {
   };
 
   const ReactIconAte = (newSnake: number[][]): boolean => {
-    const coord = rIcon.map(() =>
+    //ランダム座標をセット
+    const newRIcon = rIcon.map(() =>
       Math.floor((Math.random() * canvasX) / scale)
     );
+    //Iconを食べたら
     if (newSnake[0][0] === rIcon[0] && newSnake[0][1] === rIcon[1]) {
-      const newRIcon = coord;
-      const isFiveOrZero: boolean = (score + 1) % 5 === 0;
-      setScore(score + 1);
+      const score: number = newSnake.length - initialSnake.length;
+      const isFiveOrZero: boolean = score % 5 === 0;
+      setScore(score);
       if (isFiveOrZero && score !== 0) {
         console.log("-------------------------------");
         console.log(timeDelay, score, speedUp);
@@ -125,12 +130,15 @@ const Home = () => {
     return false;
   };
 
+  //intervalごとに呼ばれる関数
   const runGame = (): void => {
     const newSnake = [...snake];
+    //進む方向を決める
     const newSnakeHead: number[] = [
       newSnake[0][0] + direction[0],
       newSnake[0][1] + direction[1],
     ];
+    console.log("ああああ", newSnake, direction);
     console.log("蛇の頭", newSnakeHead);
     //配列の先頭に追加
     newSnake.unshift(newSnakeHead);
@@ -140,8 +148,8 @@ const Home = () => {
       setIsGameOver(true);
       handleSetScore();
     }
-    //check if snake ate the React Icon
     if (!ReactIconAte(newSnake)) {
+      //これがないと、蛇が伸び続ける
       newSnake.pop();
     }
     setSnake(newSnake);
