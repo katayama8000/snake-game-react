@@ -156,7 +156,8 @@ const Home = () => {
   };
 
   const changeDirection = (e: React.KeyboardEvent<HTMLDivElement>): void => {
-    switch (e.key) {
+    const { key } = e;
+    switch (key) {
       case "ArrowLeft":
         setDirection([-1, 0]);
         break;
@@ -168,6 +169,12 @@ const Home = () => {
         break;
       case "ArrowDown":
         setDirection([0, 1]);
+        break;
+      case "Enter":
+        alert("pause");
+        setDirection(snake[0]);
+        break;
+      default:
         break;
     }
   };
