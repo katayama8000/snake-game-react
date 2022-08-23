@@ -6,11 +6,11 @@ body {
 
 .playArea {
   border: 5px solid purple;
-  border-radius: 10px;
-  width: 585px;
-  height: 460px;
+  border-radius: 20px;
+  width: 500px;
+  height: 500px;
   position: fixed;
-  top: 43.2%;
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
   background: black;

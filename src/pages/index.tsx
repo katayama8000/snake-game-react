@@ -24,8 +24,6 @@ const Home = () => {
   const [left, setLeft] = useState<number>(20);
   const [speedUp, setSpeedUp] = useState<number>(20);
 
-  //console.log(snake);
-
   //0.1秒おきにrunGame()が一回呼ばれる
   useInterval(() => runGame(), delay);
 
@@ -120,10 +118,10 @@ const Home = () => {
       if (isFiveOrZero && score !== 0) {
         console.log("-------------------------------");
         console.log(timeDelay, score, speedUp);
+        console.log("-------------------------------");
         setDelay(timeDelay - speedUp);
         setSpeedUp((prev) => prev + 20);
       }
-
       setRIcon(newRIcon);
       return true;
     }
@@ -138,7 +136,7 @@ const Home = () => {
       newSnake[0][0] + direction[0],
       newSnake[0][1] + direction[1],
     ];
-    console.log("ああああ", newSnake, direction);
+    console.log("", newSnake, direction);
     console.log("蛇の頭", newSnakeHead);
     //配列の先頭に追加
     newSnake.unshift(newSnakeHead);
@@ -171,7 +169,6 @@ const Home = () => {
         setDirection([0, 1]);
         break;
       case "Enter":
-        //alert("pause");
         play();
         break;
       default:
@@ -196,11 +193,16 @@ const Home = () => {
         width={`${canvasX}px`}
         height={`${canvasY}px`}
       />
-      {isgameOver && <div className="gameOver">Game Over</div>}
+      {isgameOver && (
+        <div className="gameOver">
+          Game Over
+          <br />
+          Press Enter to restart
+        </div>
+      )}
       <button onClick={play} className="playButton">
         Play
       </button>
-
       <div className="scoreBox">
         <h2>Score: {score}</h2>
         {highScore && <h2>High Score: {highScore}</h2>}
