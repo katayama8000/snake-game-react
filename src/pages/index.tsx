@@ -1,63 +1,66 @@
-import React, { useEffect, useRef, useState } from "react";
-import useInterval from "@hooks/useInterval";
+import React, { useEffect, useRef, useState } from 'react';
+import { useInterval } from '@hooks/useInterval';
+import { NextPage } from 'next';
 
-const canvasX = 1000;
-const canvasY = 1000;
+const CanvasX = 1000;
+const CanvasY = 1000;
 //配列が増える＝蛇の長さが増える
-const initialSnake: number[][] = [
+const InitialSnake: number[][] = [
   [4, 10],
   [4, 10],
 ];
-const initialReactIcon = [14, 10];
-const scale = 50;
-const timeDelay = 100;
+const InitialReactIcon = [14, 10];
+const Scale = 50;
+const TimeDelay = 100;
 
-const Home = () => {
+const Home: NextPage = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [snake, setSnake] = useState<number[][]>(initialSnake);
-  const [rIcon, setRIcon] = useState<number[]>(initialReactIcon);
+  const [snake, setSnake] = useState<number[][]>(InitialSnake);
+  const [rIcon, setRIcon] = useState<number[]>(InitialReactIcon);
   const [direction, setDirection] = useState<number[]>([0, -1]);
   const [delay, setDelay] = useState<number | null>(null);
   const [isgameOver, setIsGameOver] = useState<boolean>(false);
   const [score, setScore] = useState<number>(0);
-  const [highScore, setHighScore] = useState<string | null>("");
+  const [highScore, setHighScore] = useState<string | null>(null);
   const [left, setLeft] = useState<number>(20);
   const [speedUp, setSpeedUp] = useState<number>(20);
 
   //0.1秒おきにrunGame()が一回呼ばれる
   useInterval(() => runGame(), delay);
 
-  //localStorageからhighScoreを取得
   useEffect(() => {
-    setHighScore(localStorage.getItem("snakeScore"));
-  }, []);
+    if (isgameOver) {
+      if (score > Number(highScore)) {
+        setHighScore(localStorage.getItem('snakeScore'));
+      }
+    }
+  }, [isgameOver]);
 
   useEffect(() => {
-    const reactIcon = document.getElementById("react") as HTMLCanvasElement;
-    console.log(canvasRef.current);
+    const reactIcon = document.getElementById('react') as HTMLCanvasElement;
     if (canvasRef.current) {
       const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       if (ctx) {
         //全体的なスケールを指定
-        ctx.setTransform(scale, 0, 0, scale, 0, 0);
+        ctx.setTransform(Scale, 0, 0, Scale, 0, 0);
         //この領域内のすべてのピクセルが消去される
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         switch (speedUp) {
           case 20:
-            ctx.fillStyle = "#7CFC00";
+            ctx.fillStyle = '#7CFC00';
             break;
           case 40:
-            ctx.fillStyle = "#FFD700";
+            ctx.fillStyle = '#FFD700';
             break;
           case 60:
-            ctx.fillStyle = "#FF8C00";
+            ctx.fillStyle = '#FF8C00';
             break;
           case 80:
-            ctx.fillStyle = "#FF0000";
+            ctx.fillStyle = '#FF0000';
             break;
           default:
-            ctx.fillStyle = "#7CFC00";
+            ctx.fillStyle = '#7CFC00';
             break;
         }
 
@@ -73,33 +76,28 @@ const Home = () => {
   //スコアを更新する
   const handleSetScore = (): void => {
     if (score > Number(highScore)) {
-      localStorage.setItem("snakeScore", JSON.stringify(score));
+      localStorage.setItem('snakeScore', JSON.stringify(score));
     }
   };
 
   //ゲームを開始する
   const play = (): void => {
-    setSnake(initialSnake);
-    setRIcon(initialReactIcon);
+    setSnake(InitialSnake);
+    setRIcon(InitialReactIcon);
     //初めは右
     setDirection([1, 0]);
-    setDelay(timeDelay);
+    setDelay(TimeDelay);
     setScore(0);
     setIsGameOver(false);
     setSpeedUp(20);
   };
 
   const checkCollision = (head: number[]): boolean => {
-    console.log(head);
-    //
     for (let i = 0; i < 2; i++) {
-      if (head[i] < 0 || head[i] * scale >= canvasX) return true;
-      console.log(1);
+      if (head[i] < 0 || head[i] * Scale >= CanvasX) return true;
     }
-    //
     for (const s of snake) {
       if (head[0] === s[0] && head[1] === s[1]) return true;
-      console.log(2);
     }
     //falseが返ってきたら、ゲームオーバー
     return false;
@@ -108,18 +106,15 @@ const Home = () => {
   const ReactIconAte = (newSnake: number[][]): boolean => {
     //ランダム座標をセット
     const newRIcon = rIcon.map(() =>
-      Math.floor((Math.random() * canvasX) / scale)
+      Math.floor((Math.random() * CanvasX) / Scale)
     );
     //Iconを食べたら
     if (newSnake[0][0] === rIcon[0] && newSnake[0][1] === rIcon[1]) {
-      const score: number = newSnake.length - initialSnake.length;
+      const score: number = newSnake.length - InitialSnake.length;
       const isFiveOrZero: boolean = score % 5 === 0;
       setScore(score);
       if (isFiveOrZero && score !== 0) {
-        console.log("-------------------------------");
-        console.log(timeDelay, score, speedUp);
-        console.log("-------------------------------");
-        setDelay(timeDelay - speedUp);
+        setDelay(TimeDelay - speedUp);
         setSpeedUp((prev) => prev + 20);
       }
       setRIcon(newRIcon);
@@ -136,8 +131,6 @@ const Home = () => {
       newSnake[0][0] + direction[0],
       newSnake[0][1] + direction[1],
     ];
-    console.log("", newSnake, direction);
-    console.log("蛇の頭", newSnakeHead);
     //配列の先頭に追加
     newSnake.unshift(newSnakeHead);
     //Game over
@@ -156,19 +149,19 @@ const Home = () => {
   const changeDirection = (e: React.KeyboardEvent<HTMLDivElement>): void => {
     const { key } = e;
     switch (key) {
-      case "ArrowLeft":
+      case 'ArrowLeft':
         setDirection([-1, 0]);
         break;
-      case "ArrowUp":
+      case 'ArrowUp':
         setDirection([0, -1]);
         break;
-      case "ArrowRight":
+      case 'ArrowRight':
         setDirection([1, 0]);
         break;
-      case "ArrowDown":
+      case 'ArrowDown':
         setDirection([0, 1]);
         break;
-      case "Enter":
+      case 'Enter':
         play();
         break;
       default:
@@ -180,7 +173,7 @@ const Home = () => {
     <div onKeyDown={(e) => changeDirection(e)}>
       <img
         src={
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSISAMlSDXN3aCpjHjbdrUP4vebVgG-UhE-Aw&usqp=CAU"
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSISAMlSDXN3aCpjHjbdrUP4vebVgG-UhE-Aw&usqp=CAU'
         }
         width="20"
         height="30"
@@ -190,8 +183,8 @@ const Home = () => {
       <canvas
         className="playArea"
         ref={canvasRef}
-        width={`${canvasX}px`}
-        height={`${canvasY}px`}
+        width={`${CanvasX}px`}
+        height={`${CanvasY}px`}
       />
       {isgameOver && (
         <div className="gameOver">
