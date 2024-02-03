@@ -34,7 +34,7 @@ const Home: NextPage = () => {
         setHighScore(localStorage.getItem('snakeScore'));
       }
     }
-  }, [isgameOver]);
+  }, [isgameOver,highScore,score]);
 
   useEffect(() => {
     const reactIcon = document.getElementById('react') as HTMLCanvasElement;
