@@ -22,7 +22,6 @@ const Home: NextPage = () => {
   const [isgameOver, setIsGameOver] = useState<boolean>(false);
   const [score, setScore] = useState<number>(0);
   const [highScore, setHighScore] = useState<string | null>(null);
-  const [left, setLeft] = useState<number>(20);
   const [speedUp, setSpeedUp] = useState<number>(20);
 
   //0.1秒おきにrunGame()が一回呼ばれる
@@ -34,7 +33,7 @@ const Home: NextPage = () => {
         setHighScore(localStorage.getItem('snakeScore'));
       }
     }
-  }, [isgameOver,highScore,score]);
+  }, [isgameOver, highScore, score]);
 
   useEffect(() => {
     const reactIcon = document.getElementById('react') as HTMLCanvasElement;
@@ -199,7 +198,6 @@ const Home: NextPage = () => {
       <div className="scoreBox">
         <h2>Score: {score}</h2>
         {highScore && <h2>High Score: {highScore}</h2>}
-        <h2>Left: {left}</h2>
         <h2>Speed: {speedUp}</h2>
       </div>
     </div>
